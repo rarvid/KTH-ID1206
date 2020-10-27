@@ -7,7 +7,7 @@ volatile int counter = 0;
 
 int loops = 0;
 
-void *worker(void* name) {
+void* worker(void* name) {
     
     for(int i = 0; i < loops; i++) {
 
