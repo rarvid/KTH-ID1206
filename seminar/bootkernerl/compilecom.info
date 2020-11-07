@@ -14,12 +14,13 @@
     ld -m elf_i386 -o kernel.bin -T linker.ld multiboot_header.o kernel.o
         combine object files to a kernel.bin
     
-    created a directory structure
+    created a directory structure and put compiled 'kernel.bin' boot/kernel.bin
         cdrom/
             boot/
                 grub/
                     grub.cfg
                 kernel.bin
+
 
     grub-mkrescue -o cdrom.iso cdrom
         create iso file from directory
