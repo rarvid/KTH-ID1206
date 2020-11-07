@@ -1,0 +1,32 @@
+
+    nasm -f bin -o boot.bin boot.asm 
+        compile boot.asm to a runnable binary
+
+    qemu-system-x86_64 -drive file=boot.bin,index=0,media=disk,format=raw
+        run emulator using boot.bin as mbr
+
+    nasm -f elf32 multiboot_header.asm
+        compile to multiboot_header.o object elf32 file
+
+    nasm -f elf32 kernel.asm
+        compile kernel.o object elf32 file
+
+    ld -m elf_i386 -o kernel.bin -T linker.ld multiboot_header.o kernel.o
+        combine object files to a kernel.bin
+    
+    created a directory structure
+        cdrom/
+            boot/
+                grub/
+                    grub.cfg
+                kernel.bin
+
+    grub-mkrescue -o cdrom.iso cdrom
+        create iso file from directory
+
+    mkdir iso
+    sudo mount -o loop cdrom.iso iso
+        mount cdrom.iso to iso folder
+
+    qemu-system-x86_64 -cdrom cdrom.iso
+        run emulator with iso file
