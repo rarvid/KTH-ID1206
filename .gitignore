@@ -1,4 +1,7 @@
-test*
 *.exe
 *.out
 *.txt
+*.bin
+*.o
+*.dat
+iso
