@@ -11,16 +11,21 @@
     nasm -f elf32 kernel.asm
         compile kernel.o object elf32 file
 
+    nasm -m32 -c myos.c
+        compilation for myos to object file
+
     ld -m elf_i386 -o kernel.bin -T linker.ld multiboot_header.o kernel.o
         combine object files to a kernel.bin
     
-    created a directory structure and put compiled 'kernel.bin' boot/kernel.bin
+    created a directory structure
         cdrom/
             boot/
                 grub/
                     grub.cfg
                 kernel.bin
 
+    put compiled 'kernel.bin' boot/kernel.bin
+        cp kernel.bin cdrom/boot
 
     grub-mkrescue -o cdrom.iso cdrom
         create iso file from directory
