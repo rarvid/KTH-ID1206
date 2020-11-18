@@ -16,6 +16,9 @@
 
     ld -m elf_i386 -o kernel.bin -T linker.ld multiboot_header.o kernel.o
         combine object files to a kernel.bin
+
+    ld -m elf_i386 -o myos.bin -T linker.ld multiboot_header.o start.o myos.o
+    
     
     created a directory structure
         cdrom/
