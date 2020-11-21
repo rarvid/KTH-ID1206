@@ -5,10 +5,10 @@
 #include "dlmall.h"
 
 #define ROUNDS 10
-#define LOOP 10
-#define BUFFER 100
+#define BUFFER 10
 
-int main() {
+int main(int argc, char* argv[]) {
+    int LOOP =   atoi(argv[1]);
     void *buffer[BUFFER];
     for(int i = 0; i < BUFFER; i++){
         buffer[i] = NULL;
@@ -16,31 +16,31 @@ int main() {
     void *init = sbrk(0);
     void *current;
 
-    printf("The initial top of the heap is %p.\n", init);
-
     for(int j = 0; j < ROUNDS; j++) {
         for(int i = 0; i < LOOP; i++) {
             int index = rand() % BUFFER;
             if (buffer[index] != NULL){
-                dfree(buffer[index]);
+                //first: 1 for merge , 0 for no merge
+                //second: 1 for insert sort, 0 insert no sort
+                dfree(buffer[index], 0, 1);
                 buffer[index] = NULL;
+            } else {
+                size_t size = (size_t) request();
+                int *memory;
+            
+                memory = dalloc(size, 1);  
+                if (memory == NULL) {
+                    fprintf(stderr, "malloc failed\n");
+                    return 1;
+                }
+                buffer[index] = memory;
+                // writing to memory so we know it exists
+                *memory = 123;
             }
-            size_t size = (size_t) request();
-            int *memory;
-            memory = dalloc(size);
-            if (memory == NULL) {
-                fprintf(stderr, "malloc failed\n");
-                return 1;
-            }
-            buffer[index] = memory;
-            // writing to memory so we know it exists
-            *memory = 123;
         }
-        current = sbrk(0);
-        int allocated = (int)((current - init) / 1024);
-        printf("%d\n", j);
-        printf("The current top of the heap is %p.\n", current);
-        printf("    increased by %d Kbyte\n", allocated);
+        // sanity();
     }
+    get_block_count();
+    
     return 0;
 }

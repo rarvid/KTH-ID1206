@@ -110,7 +110,7 @@ void detach(head *block) {
     block->prev = NULL;
 }
 
-void insert(head *block) {
+void insert_reg(head *block) {
     block->next = flist;
     block->prev = NULL;
     if (flist != NULL) {
@@ -119,21 +119,50 @@ void insert(head *block) {
     flist = block;
 }
 
-int adjust(int request) {
-    // check if requested block is smaller than 8
-    if(request < MIN(0)){
-        return 8;
+void insert_sorted(head *block) {
+    head *flcp = flist;
+    if(flcp == NULL) {
+        insert_reg(block);
     }
-    // check if request is even muliple of ALIGN
-    if(request % ALIGN != 0){
-        // add difference to get even multiple of ALIGN
-        return request + (request % ALIGN);
+    else if(block->size <= flcp->size) {
+        insert_reg(block);
     } else {
-        return request;
+        while (flcp->next != NULL && block->size > flcp->next->size) {
+            flcp = flcp->next;
+        }
+        block->next = flcp->next;
+        block->prev = flcp;
+        if(flcp->next == NULL) {
+            flcp->next = block; 
+        }
+        else {
+            flcp->next->prev = block;
+            flcp->next = block;
+        }
     }
 }
 
-head *find(int size) {
+void insert(head *block,int bit){
+    if(bit == 1) {
+        insert_sorted(block);
+    }
+    if(bit == 0) {
+        insert_reg(block);
+    }
+}
+
+int adjust(int request) {
+    // check if requested block is smaller than 8
+    if(request <= MIN(0)){
+        return 8;
+    }
+    if ((request % ALIGN) != 0) {
+        return request + (ALIGN - (request % ALIGN));
+    } 
+    return request;
+}
+
+head *find(int size, int bit) {
     if(arena == NULL) {
         head *mem = new();
         flist = mem;
@@ -151,10 +180,11 @@ head *find(int size) {
                 block->free = FALSE;
                 after(block)->bfree = FALSE;
                 detach(block);
-                insert(off);
+                insert(off, bit);
                 return block;
             } else {
                 block->free = FALSE;
+                after(block)->bfree = FALSE;
                 detach(block);
                 return block;
             }
@@ -164,12 +194,34 @@ head *find(int size) {
     return NULL;
 }
 
-void *dalloc(size_t request) {
+head *merge(head *block) {
+    head *aft = after(block);
+
+    if(block->bfree) {
+        head *bef = before(block);
+        detach(bef);
+        int newsize = block->size + bef->size + HEAD;
+        aft->bsize = newsize;
+        bef->size = newsize;
+        block = bef;
+    }
+
+    if(aft->free) {
+        detach(aft);
+        int newsize = block->size + aft->size + HEAD;
+        head *aftaft = after(aft);
+        aftaft->bsize = newsize;
+        block->size = newsize;
+    }
+    return block;
+}
+
+void *dalloc(size_t request, int bit) {
     if(request <= 0) {
         return NULL;
     }
     int size = adjust(request);
-    head *taken = find(size);
+    head *taken = find(size, bit);
     if(taken == NULL){
         return NULL;
     } else {
@@ -177,16 +229,19 @@ void *dalloc(size_t request) {
     }
 }
 
-void dfree(void *memory) {
+void dfree(void *memory, int m, int bit) {
 
     if(memory != NULL) {
         head *block = MAGIC(memory);
 
+        if(m == 1) {
+        block = merge(block);
+        }
         head *aft = after(block);
         block->free = TRUE;
         aft->bfree = TRUE;   
 
-        insert(block);
+        insert(block, bit);
     }
     return;
 }
@@ -196,7 +251,7 @@ void sanity(){
     head *sanflist = flist;
     printf("                        \n\n*****************************FREE LIST PRINT OUT*******************\n\n");
     while(sanflist != NULL) {
-        printf("free list block: %15p  |   bfree:  %15d  |   bsize:  %15d  |   size:  %15d  |   free:   %15d  |   next:   %15p  |   prev:   %15p\n",
+        printf("free list block: %15p  |   bfree:  %2d  |   bsize:  %5d  |   size:  %5d  |   free:   %2d  |   next:   %15p  |   prev:   %15p\n",
         sanflist,
         sanflist->bfree, 
         sanflist->bsize, 
@@ -211,7 +266,7 @@ void sanity(){
     int size = 0;
     printf("                           \n\n*****************************ARENA PRINT OUT*******************\n\n");
     do {
-        printf("free list block: %15p  |   bfree:  %15d  |   bsize:  %15d  |   size:  %15d  |   free:   %15d  |   next:   %15p  |   prev:   %15p\n",
+        printf("free list block: %15p  |   bfree:  %2d  |   bsize:  %5d  |   size:  %5d  |   free:   %2d  |   next:   %15p  |   prev:   %15p\n",
         sanarena,
         sanarena->bfree, 
         sanarena->bsize, 
@@ -224,4 +279,23 @@ void sanity(){
     } while(size != 0);
 
 
+}
+
+void get_block_count() {
+    head *cpFL = flist;
+    int nofFL = 0;
+    while(cpFL != NULL){
+        nofFL++;
+        cpFL = cpFL->next;
+    }
+    head *cpA = arena;
+    int size = 0;
+    int nofA = 0;
+    do{
+        size = cpA->size;
+        nofA++;
+        cpA = after(cpA);
+    }while(size !=0);
+
+    printf("\t%d\t%d\n", nofFL, nofA);
 }
