@@ -4,4 +4,9 @@
 *.bin
 *.o
 *.dat
+*.vscode
 iso
+peda*
+*.ods
+*.p
+*.png

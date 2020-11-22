@@ -1,7 +1,7 @@
 #include <math.h>
 #include <stdlib.h>
 
-#define MAX 4000
+#define MAX 1000
 #define MIN 8
 
 int request() {
