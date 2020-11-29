@@ -59,6 +59,7 @@ void toggle(cell *lst, int r) {
     cell *new = malloc(sizeof(cell));
     new->val = r;
     new->next = this;
+    new->mutex = 0;
     prev->next = new;
     new = NULL;
   }
