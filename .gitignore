@@ -11,3 +11,4 @@ peda*
 *.p
 *.png
 *.swp
+*.gdb*
