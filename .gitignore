@@ -12,3 +12,9 @@ peda*
 *.png
 *.swp
 *.gdb*
+*.order
+*.ko
+*.symvers
+*.cmd
+*.mod
+*.mod.*
