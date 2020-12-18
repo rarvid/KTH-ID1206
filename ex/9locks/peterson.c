@@ -44,7 +44,7 @@ int main(int argc, char *argv[]) {
 
   pthread_t one_p, two_p;
   args one_args, two_args;
-  
+
   one_args.inc = inc;
   two_args.inc = inc;
 
