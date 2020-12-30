@@ -33,19 +33,19 @@ static void init() __attribute__((constructor));
 void init() {
     getcontext(&main_cntx);
     sigemptyset(&block);
-    sigaddset(&block, SIGALRM);
+    sigaddset(&block, SIGVTALRM);
 
     struct sigaction act = {0};
     struct timeval interval;
     struct itimerval period;
 
     act.sa_handler = timer_handler;
-    assert(sigaction(SIGALRM, &act, NULL) == 0);
+    assert(sigaction(SIGVTALRM, &act, NULL) == 0);
     interval.tv_sec = 0;
     interval.tv_usec = PERIOD;
     period.it_interval = interval;
     period.it_value = interval;
-    assert(setitimer(ITIMER_REAL, &period, NULL) == 0);
+    assert(setitimer(ITIMER_VIRTUAL, &period, NULL) == 0);
 }
 
 green_t *ready = NULL;        // initialize ready queue
