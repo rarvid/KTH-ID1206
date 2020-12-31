@@ -47,10 +47,6 @@ int main(int argc, char* argv[]) {
     pthread_join(p2, NULL);
     p_stop = clock();
 
-    double p_time = ((double)p_stop - p_start) / CLOCKS_PER_SEC;
-    p_time = p_time * 10000;
-    printf("%.2f\t%d\n", p_time, p_count);
-
     green_t g0 ,g1 ,g2;
     g_start = clock();
     green_create(&g0, g_test, (void *)&loops);
@@ -61,9 +57,12 @@ int main(int argc, char* argv[]) {
     green_join(&g2, NULL);
     g_stop = clock();
 
-    double g_time = ((double)g_stop - g_start) / CLOCKS_PER_SEC;
-    g_time = g_time * 10000;
-    printf("%.2f\t%d\n", g_time, g_count);
+    double p_time = ((double)p_stop - p_start) / CLOCKS_PER_SEC; // in seconds
+    p_time = p_time * 1000 * 1000; 
+
+    double g_time = ((double)g_stop - g_start) / CLOCKS_PER_SEC; // in seconds
+    g_time = g_time * 1000 * 1000;
+    printf("%.4f\t%.4f\t%d\t%d\n", p_time, g_time, p_count, g_count);
 
 
 }
