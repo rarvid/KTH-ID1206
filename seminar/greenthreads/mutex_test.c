@@ -8,13 +8,13 @@ green_mutex_t mutex;
 
 void *test(void *arg) {
   int i = *(int*)arg;
-  int loop = 1000000;
+  int loop = 100000;
   while(loop > 0) {
     green_mutex_lock(&mutex);
     // printf("thread %d: %d\n", i, glob);
     glob++;
-    loop--;
     green_mutex_unlock(&mutex);
+    loop--;
   }
 }
 

@@ -141,7 +141,7 @@ void green_thread() {
 }
 
 int green_create(green_t *new, void *(*fun)(void*), void *arg) {
-    sigprocmask(SIG_BLOCK, &block, NULL);
+    // sigprocmask(SIG_BLOCK, &block, NULL);
     ucontext_t *cntx = (ucontext_t *)malloc(sizeof(ucontext_t));
     getcontext(cntx);
 
@@ -161,7 +161,7 @@ int green_create(green_t *new, void *(*fun)(void*), void *arg) {
 
     // add new to the ready queue
     add_last(new, &ready);
-    sigprocmask(SIG_UNBLOCK, &block, NULL);
+    // sigprocmask(SIG_UNBLOCK, &block, NULL);
     return 0;
 }
 
@@ -285,10 +285,12 @@ int green_mutex_unlock(green_mutex_t *mutex) {
     sigprocmask(SIG_BLOCK, &block, NULL);
 
     if(mutex->susp_l != NULL) {
-        add_last(mutex->susp_l, &ready);
+        green_t *resumed = remove_first(&mutex->susp_l);
+        resumed->next = NULL;
+        add_last(resumed, &ready);
+    } else {
+        mutex->taken = FALSE;
     }
-    mutex->taken = FALSE;
-    mutex->susp_l = NULL;
     
     sigprocmask(SIG_UNBLOCK, &block, NULL);
     return 0;
